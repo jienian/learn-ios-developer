@@ -204,6 +204,41 @@ NSLayoutConstraint.activate([
     stack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8)
 ])
 
+三、SwiftUI 与 UIKit 混排
+1. 将 SwiftUI 视图嵌入 UIKit 控制器（UIHostingController）
+// 在某个 UIViewController 内部
+let swiftUIView = DefectRowView(defect: item, onItemClick: {})
+let hostingController = UIHostingController(rootView: swiftUIView)
+
+// 作为子控制器添加
+addChild(hostingController)
+view.addSubview(hostingController.view)
+hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+NSLayoutConstraint.activate([
+    hostingController.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+    hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+    hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+    hostingController.view.heightAnchor.constraint(equalToConstant: 120)
+])
+hostingController.didMove(toParent: self)
+
+2. 将 UIKit 原生控件封装进 SwiftUI（UIViewRepresentable）
+// 让 SwiftUI 能直接使用传统的 UITextView（支持更精细的文本高亮与撤销）
+struct AdvancedLogTextView: UIViewRepresentable {
+    @Binding var text: String
+
+    func makeUIView(context: Context) -> UITextView {
+        let textView = UITextView()
+        textView.font = UIFont.monospacedSystemFont(ofSize: 12, weight: .regular)
+        textView.isEditable = false
+        return textView
+    }
+
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        uiView.text = text
+    }
+}
+
 
 
 
