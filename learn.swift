@@ -175,4 +175,35 @@ class DefectCardView: UIView {
     }
 }
 
+let nameLabel = UILabel()      // 硬件名："传感器主板通道-A"
+let statusLabel = UILabel()    // 状态："异常"
+
+// 我们希望 statusLabel 永远完整展示，不要被挤压截断：
+statusLabel.setContentCompressionResistancePriority(.required, for: .horizontal) // 1000 最高优先级
+
+// 我们希望 nameLabel 在空间有多余时被拉宽，statusLabel 紧贴文字：
+statusLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal) // 750
+nameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)     // 250 低，被拉长
+
+2. UIKit 布局提效神器：UIStackView
+对标 Android 的 LinearLayout 或 SwiftUI 的 HStack/VStack。
+在 Auto Layout 时代，聪明的工程师极少一个个写锚点约束，而是优先用 UIStackView 组合：
+let stack = UIStackView(arrangedSubviews: [titleLabel, statusIcon])
+stack.axis = .horizontal       // 水平排列
+stack.distribution = .fill     // 填充分配规则
+stack.alignment = .center      // 居中对齐
+stack.spacing = 12             // 间距
+stack.translatesAutoresizingMaskIntoConstraints = false
+
+addSubview(stack)
+// 只需要给 StackView 本身绑定 4 个边缘约束，子视图自动排布！
+NSLayoutConstraint.activate([
+    stack.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+    stack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+    stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+    stack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8)
+])
+
+
+
 
