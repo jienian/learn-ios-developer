@@ -1,4 +1,4 @@
-体系一：SwiftUI 布局原理与深度实战
+# 一、SwiftUI 布局原理与深度实战
 1. 苹果官方三大布局协商法则（The Three-Step Layout Process）
 SwiftUI 的布局不是由父视图强制指定子视图的尺寸，而是通过协商机制完成的，共三步：
 
@@ -135,3 +135,44 @@ AutoFlowLayout(spacing: 8) {
             .cornerRadius(12)
     }
 }
+
+# 二、UIKit Auto Layout
+1. 核心约束写法与生死开关：translatesAutoresizingMaskIntoConstraints
+在纯代码写 UIKit 时，只要你手写约束，第一行必须把这个开关置为 false！
+原因：系统默认会根据旧时代的 Frame 自动转成掩码约束，如果不关掉，会导致你的约束与系统默认约束产生严重冲突（Crash 或打满日志报错）
+import UIKit
+
+class DefectCardView: UIView {
+    let titleLabel = UILabel()
+    let statusIcon = UIImageView()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupViews()
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    private func setupViews() {
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        statusIcon.translatesAutoresizingMaskIntoConstraints = false
+
+        addSubview(titleLabel)
+        addSubview(statusIcon)
+
+        NSLayoutConstraint.activate([
+            // 图标靠右对齐，宽高固定 24x24
+            statusIcon.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16),
+            statusIcon.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            statusIcon.widthAnchor.constraint(equalToConstant: 24),
+            statusIcon.heightAnchor.constraint(equalToConstant: 24),
+
+            // 文本靠左，右侧限制在图标左边 8 像素处，垂直居中
+            titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: statusIcon.leadingAnchor, constant: -8),
+            titleLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+        ])
+    }
+}
+
+
